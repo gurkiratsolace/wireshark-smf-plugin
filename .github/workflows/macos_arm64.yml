@@ -62,10 +62,13 @@ jobs:
       - name: Run Setup Script
         run: ./wireshark/tools/macos-setup-brew.sh
 
+      - name: Uninstall glib
+        run: brew uninstall --ignore-dependencies glib
+        
       - name: Copy dependencies into Wireshark app bundle
         run: |
           mkdir -p ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/libs
-          cp /opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/libs/
+    #      cp /opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/libs/
 
       - name: Link SMF plugin
         shell: bash
@@ -95,10 +98,10 @@ jobs:
         run: ninja
 
       # Update dependency path for SMF plugin to find the bundled libraries
-      - name: Modify rpath for SMF plugin
-        run: |
-          VERSIONED_DIR="${{ inputs.MAJOR_VERSION }}-${{ inputs.MINOR_VERSION }}"
-          install_name_tool -change /opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib @executable_path/libs/libglib-2.0.0.dylib ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/wireshark/${VERSIONED_DIR}/epan/smf.so
+ #     - name: Modify rpath for SMF plugin
+#        run: |
+  #        VERSIONED_DIR="${{ inputs.MAJOR_VERSION }}-${{ inputs.MINOR_VERSION }}"
+ #         install_name_tool -change /opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib @executable_path/libs/libglib-2.0.0.dylib ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/wireshark/${VERSIONED_DIR}/epan/smf.so
             
        # A compressed tarball is created for release. Includes the dependencies too
        # This means that the artifact is compressed and zipped as a result.
