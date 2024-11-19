@@ -510,7 +510,7 @@ am__v_YACC_0 = @echo "  YACC    " $@;
 abi_incdirs = $(subst -I,NEWLINE,$(filter -I%,$(WS_CFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
 abi_sysdirs = $(subst -isystem,NEWLINE,$(filter -isystem%,$(WS_CFLAGS)))
 abi_includes = $(abi_incdirs) $(abi_sysdirs)
-PLUGIN_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
+PLUGIN_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS)
 PLUGIN_CFLAGS = 
 PLUGIN_LDFLAGS = -module -avoid-version
 
