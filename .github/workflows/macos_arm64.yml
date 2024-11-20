@@ -61,13 +61,10 @@ jobs:
         
       - name: Run Setup Script
         run: ./wireshark/tools/macos-setup-brew.sh
-
-      - name: Uninstall glib
-        run: brew uninstall --ignore-dependencies glib
         
-      - name: Copy dependencies into Wireshark app bundle
-        run: |
-          mkdir -p ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/libs
+      #- name: Copy dependencies into Wireshark app bundle
+      #  run: |
+      #    mkdir -p ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/libs
     #      cp /opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/libs/
 
       - name: Link SMF plugin
@@ -98,20 +95,23 @@ jobs:
         run: ninja
 
       # Update dependency path for SMF plugin to find the bundled libraries
- #     - name: Modify rpath for SMF plugin
-#        run: |
-  #        VERSIONED_DIR="${{ inputs.MAJOR_VERSION }}-${{ inputs.MINOR_VERSION }}"
- #         install_name_tool -change /opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib @executable_path/libs/libglib-2.0.0.dylib ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/wireshark/${VERSIONED_DIR}/epan/smf.so
+      - name: Modify rpath for SMF plugin
+        run: |
+          VERSIONED_DIR="${{ inputs.MAJOR_VERSION }}-${{ inputs.MINOR_VERSION }}"
+          install_name_tool -change /opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib @executable_path/../Frameworks/libglib-2.0.0.dylib ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/wireshark/${VERSIONED_DIR}/epan/smf.so
             
        # A compressed tarball is created for release. Includes the dependencies too
        # This means that the artifact is compressed and zipped as a result.
+    #  - name: Create Compressed Tarball
+    #    working-directory: ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns
+    #    run: |
+    #      VERSIONED_DIR="${{ inputs.MAJOR_VERSION }}-${{ inputs.MINOR_VERSION }}"
+    #      tar -czvf ${{ github.workspace }}/${{ env.PLUGIN_NAME }} -C ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns wireshark/${VERSIONED_DIR}/epan/smf.so libs/
+
       - name: Create Compressed Tarball
-        working-directory: ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns
-        run: |
-          VERSIONED_DIR="${{ inputs.MAJOR_VERSION }}-${{ inputs.MINOR_VERSION }}"
-          tar -czvf ${{ github.workspace }}/${{ env.PLUGIN_NAME }} -C ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns wireshark/${VERSIONED_DIR}/epan/smf.so libs/
-
-
+        working-directory: ${{ github.workspace }}/build/run/Wireshark.app/Contents/PlugIns/wireshark
+        run: tar -czvf ${{ github.workspace }}/${{ env.PLUGIN_NAME }} **/epan/smf.so
+        
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
